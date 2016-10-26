@@ -1,0 +1,46 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.wuyixiong.news.fragment.NewsFragment">
+
+
+
+
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:padding="2dp"
+        android:orientation="horizontal">
+        <com.example.wuyixiong.news.view.HorizontalListView
+            android:id="@+id/hlv_main"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp">
+
+        </com.example.wuyixiong.news.view.HorizontalListView>
+
+
+        <ImageView
+            android:id="@+id/iv_add"
+            android:background="@drawable/add"
+            android:layout_width="28dp"
+            android:layout_height="30dp" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <com.example.wuyixiong.news.xlistview.XListView
+            android:id="@+id/xlv_frag_news"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        </com.example.wuyixiong.news.xlistview.XListView>
+    </LinearLayout>
+</LinearLayout>

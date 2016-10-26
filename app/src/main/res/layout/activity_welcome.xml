@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_welcome"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.wuyixiong.news.activity.WelcomeActivity">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vp_welcome"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </android.support.v4.view.ViewPager>
+
+    <LinearLayout
+        android:id="@+id/ll_welcome_select"
+        android:layout_alignParentBottom="true"
+        android:layout_weight="0"
+        android:gravity="center"
+        android:layout_marginBottom="60dp"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/iv_viewpager"
+            android:layout_margin="15dp"
+            android:src="@drawable/viewpager_selected"
+            android:layout_width="10dp"
+            android:layout_height="10dp" />
+
+        <ImageView
+            android:id="@+id/iv_viewpager2"
+            android:layout_margin="15dp"
+            android:src="@drawable/viewpager_notselected"
+            android:layout_width="10dp"
+            android:layout_height="10dp" />
+
+        <ImageView
+            android:id="@+id/iv_viewpager3"
+            android:layout_margin="15dp"
+            android:src="@drawable/viewpager_notselected"
+            android:layout_width="10dp"
+            android:layout_height="10dp" />
+
+        <ImageView
+            android:id="@+id/iv_viewpager4"
+            android:layout_margin="15dp"
+            android:src="@drawable/viewpager_notselected"
+            android:layout_width="10dp"
+            android:layout_height="10dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>
