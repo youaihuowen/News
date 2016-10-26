@@ -34,28 +34,32 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
     private LruCache<String, Bitmap> cache;
     private File file;
 
-    public NewsAdapter(ArrayList data, Context mContext, XListView xlv) {
-        super(data, mContext);
+    public NewsAdapter(Context mContext, XListView xlv) {
+        super(mContext);
         this.xlv = xlv;
         httpManager = new HttpManager(mContext);
         cache = new LruCache<>(1024 * 1024);
         file = mContext.getCacheDir();
     }
 
+
+
     public Bitmap getBitmap(final String url) {
+        Log.i("tag", "-----------------");
+
         final String urlName = url.substring(url.lastIndexOf("/") + 1);
         Bitmap bit = null;
 
         //从缓存中找图片
         bit = cache.get(urlName);
         if (bit != null) {
-            Log.i("tag", "缓存中读取");
+            Log.i("tag", "缓存中读取"+urlName);
             return bit;
         }
         //从文件中找图片
         bit = getBitmapInFile(urlName);
         if (bit != null) {
-            Log.i("tag", "文件中读取");
+            Log.i("tag", "文件中读取"+urlName);
             return bit;
         }
         //从网络获取图片
@@ -66,12 +70,12 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
                 if (iv != null) {
                     //设置图片
                     iv.setImageBitmap(bitmap);
-                    Log.i("tag", "网络中读取");
+                    Log.i("tag", "网络中读取"+urlName);
 
                     //将图片放入缓存
                     cache.put(urlName, bitmap);
-                    //将图片放入文件
-                    putBitmapInFile(urlName,bitmap);
+//                    //将图片放入文件
+//                    putBitmapInFile(urlName,bitmap);
                 }
             }
         }, new Response.ErrorListener() {
@@ -114,6 +118,7 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
 
     @Override
     protected View getMyView(int position, View convertView, ViewGroup parent) {
+        Log.i("tag", "++++++++++++++++++");
         ViewHolder viewHolder = null;
         Bitmap bit = null;
         if (convertView == null) {
@@ -127,6 +132,7 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
         viewHolder.tv_stamp.setText(data.get(position).getStamp());
 
         bit = getBitmap(data.get(position).getIcon());
+
         if (bit != null) {
             viewHolder.iv_icon.setImageBitmap(bit);
         }

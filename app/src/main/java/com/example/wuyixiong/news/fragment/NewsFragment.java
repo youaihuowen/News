@@ -55,6 +55,7 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
     private ArrayList<NewsEntity> data = new ArrayList<>();
 
     private MainActivity main;
+
     public NewsFragment() {
         // Required empty public constructor
     }
@@ -73,6 +74,11 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
         xlv = (XListView) view.findViewById(R.id.xlv_frag_news);
         main = (MainActivity) getActivity();
 
+        newsAdapter = new NewsAdapter(getActivity(),xlv);
+        xlv.setPullRefreshEnable(true);
+        xlv.setPullLoadEnable(true);
+        xlv.setRefreshTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
+
         //初始化新闻类型的listview
         initType();
         //初始化新闻
@@ -88,6 +94,13 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
         hlv.setOnItemClickListener(this);
     }
 
+    /**
+     * 横向listview的点击监听
+     * @param parent
+     * @param view
+     * @param position
+     * @param id
+     */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         adapter.selected = position;
@@ -209,11 +222,12 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
 
     /**
      * 初始化新闻
+     *
      * @param subid
      */
     private void initNews(final int subid) {
         //显示加载的dialog
-        main.showLoadingDialog(null,true);
+        main.showLoadingDialog(null, true);
         if (MainActivity.isNetworkAvailable(getContext())) {
             //获取当前时间
             SimpleDateFormat sp = new SimpleDateFormat("yyyyMMdd");
@@ -226,13 +240,11 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String s) {
-                            data.clear();
                             data = analysisNews(s);
-                            newsAdapter = new NewsAdapter(data, getContext(),xlv);
+                            newsAdapter.setData(data);
+                            Log.i("tag", "AAAAAAAAAAA");
                             xlv.setAdapter(newsAdapter);
-                            xlv.setPullRefreshEnable(true);
-                            xlv.setPullLoadEnable(true);
-                            xlv.setRefreshTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
+
                             //取消加载的dialog
                             main.cancelDialog();
 
@@ -289,8 +301,8 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String s) {
-                            data.addAll(analysisNews(s));
-                            newsAdapter.notifyDataSetChanged();
+                            newsAdapter.addNewList(analysisNews(s));
+                            newsAdapter.updateAdapter();
                         }
                     },
                     new Response.ErrorListener() {
@@ -307,6 +319,7 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
 
     /**
      * 解析新闻
+     *
      * @param s
      * @return
      */
@@ -337,8 +350,6 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
 
         return list;
     }
-
-
 
 
 }

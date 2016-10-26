@@ -1,6 +1,7 @@
 package com.example.wuyixiong.news.base;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,9 @@ import java.util.ArrayList;
  */
 
 public abstract class MyBaseAdapter<T> extends BaseAdapter {
-    protected ArrayList<T> data = new ArrayList<T>();
-    protected Context mContext;
-    protected LayoutInflater inflater;
+    public ArrayList<T> data = new ArrayList<T>();
+    public Context mContext;
+    public LayoutInflater inflater;
 
     public MyBaseAdapter(ArrayList<T> data, Context mContext) {
         this.data = data;
@@ -24,10 +25,56 @@ public abstract class MyBaseAdapter<T> extends BaseAdapter {
         inflater = LayoutInflater.from(mContext);
     }
 
+    public MyBaseAdapter(Context mContext) {
+        this.mContext = mContext;
+        inflater = LayoutInflater.from(mContext);
+    }
+
+    /**
+     * 设置数据
+     * @param list
+     */
+    public void setData(ArrayList<T> list){
+        this.data = list;
+    }
+
+    /**
+     * 获取数据
+     * @return
+     */
+    public ArrayList<T> getData(){
+        return data;
+    }
+
+
+    /**
+     * 增加单条数据
+     * @param t
+     */
+    public void addNewData(T t){
+        data.add(t);
+    }
+
+    /**
+     * 添加多条数据
+     * @param list
+     */
+    public void addNewList(ArrayList<T> list){
+        data.addAll(list);
+    }
+
+    /**
+     * 刷新适配器
+     */
+    public void updateAdapter(){
+        this.notifyDataSetChanged();
+    }
+
     @Override
     public int getCount() {
         if (data==null)
             return 0;
+        Log.i("tag", data.size()+"");
         return data.size();
     }
 
