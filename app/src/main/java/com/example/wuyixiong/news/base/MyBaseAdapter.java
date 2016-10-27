@@ -74,7 +74,6 @@ public abstract class MyBaseAdapter<T> extends BaseAdapter {
     public int getCount() {
         if (data==null)
             return 0;
-        Log.i("tag", data.size()+"");
         return data.size();
     }
 

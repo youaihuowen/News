@@ -2,6 +2,7 @@ package com.example.wuyixiong.news.fragment;
 
 
 import android.app.Dialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -22,6 +23,7 @@ import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.wuyixiong.news.R;
+import com.example.wuyixiong.news.activity.DetailsActivity;
 import com.example.wuyixiong.news.activity.MainActivity;
 import com.example.wuyixiong.news.adapter.HLVAdapter;
 import com.example.wuyixiong.news.adapter.NewsAdapter;
@@ -74,7 +76,7 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
         xlv = (XListView) view.findViewById(R.id.xlv_frag_news);
         main = (MainActivity) getActivity();
 
-        newsAdapter = new NewsAdapter(getActivity(),xlv);
+        newsAdapter = new NewsAdapter(getActivity());
         xlv.setPullRefreshEnable(true);
         xlv.setPullLoadEnable(true);
         xlv.setRefreshTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
@@ -83,16 +85,10 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
         initType();
         //初始化新闻
         initNews(2);
-
         setListener();
         return view;
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        hlv.setOnItemClickListener(this);
-    }
 
     /**
      * 横向listview的点击监听
@@ -103,14 +99,27 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
      */
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        adapter.selected = position;
-        adapter.notifyDataSetChanged();
-        initNews(list.get(position).getSubid());
+        switch (view.getId()){
+            case R.id.hlv_main:
+
+                break;
+            case R.id.xlv_frag_news:
+
+                break;
+        }
+
     }
 
     //设置监听
     private void setListener() {
-        hlv.setOnItemClickListener(this);
+        hlv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                adapter.selected = position;
+                adapter.notifyDataSetChanged();
+                initNews(list.get(position).getSubid());
+            }
+        });
         xlv.setXListViewListener(new XListView.IXListViewListener() {
             @Override
             public void onRefresh() {
@@ -122,6 +131,15 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
             public void onLoadMore() {
                 loadMoreNews(list.get(adapter.selected).getSubid(), data.get(data.size() - 1).getNid());
                 xlv.stopLoadMore();
+            }
+        });
+        xlv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), DetailsActivity.class);
+                String link = data.get(position-1).getLink();
+                intent.putExtra("link",link);
+                startActivity(intent);
             }
         });
     }

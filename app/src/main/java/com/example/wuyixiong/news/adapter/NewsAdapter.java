@@ -34,9 +34,9 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
     private LruCache<String, Bitmap> cache;
     private File file;
 
-    public NewsAdapter(Context mContext, XListView xlv) {
+    public NewsAdapter(Context mContext) {
         super(mContext);
-        this.xlv = xlv;
+
         httpManager = new HttpManager(mContext);
         cache = new LruCache<>(1024 * 1024);
         file = mContext.getCacheDir();
@@ -45,7 +45,7 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
 
 
     public Bitmap getBitmap(final String url) {
-        Log.i("tag", "-----------------");
+//        Log.i("tag", "-----------------");
 
         final String urlName = url.substring(url.lastIndexOf("/") + 1);
         Bitmap bit = null;
@@ -53,7 +53,7 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
         //从缓存中找图片
         bit = cache.get(urlName);
         if (bit != null) {
-            Log.i("tag", "缓存中读取"+urlName);
+//            Log.i("tag", "缓存中读取"+urlName);
             return bit;
         }
         //从文件中找图片
@@ -70,7 +70,7 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
                 if (iv != null) {
                     //设置图片
                     iv.setImageBitmap(bitmap);
-                    Log.i("tag", "网络中读取"+urlName);
+//                    Log.i("tag", "网络中读取"+urlName);
 
                     //将图片放入缓存
                     cache.put(urlName, bitmap);
@@ -118,7 +118,10 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
 
     @Override
     protected View getMyView(int position, View convertView, ViewGroup parent) {
-        Log.i("tag", "++++++++++++++++++");
+        Log.i("tag", "++++++++++++++++++"+position);
+        if (xlv == null){
+            xlv = (XListView) parent;
+        }
         ViewHolder viewHolder = null;
         Bitmap bit = null;
         if (convertView == null) {
