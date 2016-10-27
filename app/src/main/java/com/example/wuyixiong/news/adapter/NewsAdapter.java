@@ -15,14 +15,12 @@ import com.android.volley.VolleyError;
 import com.example.wuyixiong.news.R;
 import com.example.wuyixiong.news.base.MyBaseAdapter;
 import com.example.wuyixiong.news.entity.NewsEntity;
-import com.example.wuyixiong.news.util.HttpManager;
+import com.example.wuyixiong.news.webutil.HttpManager;
 import com.example.wuyixiong.news.xlistview.XListView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 
 /**
  * Created by WUYIXIONG on 2016-10-24.
@@ -53,7 +51,7 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
         //从缓存中找图片
         bit = cache.get(urlName);
         if (bit != null) {
-//            Log.i("tag", "缓存中读取"+urlName);
+            Log.i("tag", "缓存中读取"+urlName);
             return bit;
         }
         //从文件中找图片
@@ -70,12 +68,12 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
                 if (iv != null) {
                     //设置图片
                     iv.setImageBitmap(bitmap);
-//                    Log.i("tag", "网络中读取"+urlName);
+                    Log.i("tag", "网络中读取"+urlName);
 
                     //将图片放入缓存
                     cache.put(urlName, bitmap);
-//                    //将图片放入文件
-//                    putBitmapInFile(urlName,bitmap);
+                    //将图片放入文件
+                    putBitmapInFile(urlName,bitmap);
                 }
             }
         }, new Response.ErrorListener() {
@@ -88,6 +86,11 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
 
     }
 
+    /**
+     * 从文件中获取缓存的图片
+     * @param urlName 图片名
+     * @return 获取到的图片
+     */
     private Bitmap getBitmapInFile(String urlName) {
         if (file.exists()) {
             Bitmap b = null;
@@ -95,6 +98,8 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
             for (File f : files) {
                 if (urlName.equals(f.getName())) {
                     b = BitmapFactory.decodeFile(f.getAbsolutePath());
+                    //将图片放入缓存
+                    cache.put(urlName, b);
                     break;
                 }
             }
@@ -104,6 +109,11 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
         }
     }
 
+    /**
+     * 将图片缓存入文件
+     * @param urlName 图片名
+     * @param b 图片
+     */
     private void putBitmapInFile(String urlName, Bitmap b) {
         file.mkdir();
         File f = new File(file, urlName);
@@ -134,12 +144,13 @@ public class NewsAdapter extends MyBaseAdapter<NewsEntity> {
         viewHolder.tv_title.setText(data.get(position).getTitle());
         viewHolder.tv_stamp.setText(data.get(position).getStamp());
 
-        bit = getBitmap(data.get(position).getIcon());
+        viewHolder.iv_icon.setTag(data.get(position).getIcon());
 
+        bit = getBitmap(data.get(position).getIcon());
         if (bit != null) {
             viewHolder.iv_icon.setImageBitmap(bit);
         }
-        viewHolder.iv_icon.setTag(data.get(position).getIcon());
+
         return convertView;
     }
 

@@ -49,12 +49,12 @@ public class WelcomeActivity extends BaseActivity {
             initView();
 
             //导入数据库
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    importDatabase();
-                }
-            }).start();
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    importDatabase();
+//                }
+//            }).start();
 
             setLisetner();
         }
@@ -136,42 +136,42 @@ public class WelcomeActivity extends BaseActivity {
         });
     }
 
-    private void importDatabase(){
-        //实例化database的file
-        File file=new File("data/data/com.example.wuyixiong.news/database");
-
-        try {
-            //如果database不存在，建立目录
-            if(!file.exists()){
-                file.mkdir();
-            }
-            //实例化路径为phone.db的file
-            file=new File("data/data/com.example.wuyixiong.news/database/news.db");
-
-
-            //如果news.db不存在，新建文件
-            if (!file.exists()){
-                file.createNewFile();
-            }else{
-                return;
-            }
-
-            //建立从raw读取数据的输入流
-            InputStream input=getResources().openRawResource(R.raw.news);
-            //建立写到数据库中的输出流
-            FileOutputStream output=new FileOutputStream(file);
-
-            byte[] buffer=new byte[1024];//缓冲区
-            int count=0;
-            while((count=input.read(buffer))!=-1){
-                output.write(buffer,0,count);
-            }
-            input.close();
-            output.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
+//    private void importDatabase(){
+//        //实例化database的file
+//        File file=new File("data/data/com.example.wuyixiong.news/database");
+//
+//        try {
+//            //如果database不存在，建立目录
+//            if(!file.exists()){
+//                file.mkdir();
+//            }
+//            //实例化路径为phone.db的file
+//            file=new File("data/data/com.example.wuyixiong.news/database/news.db");
+//
+//
+//            //如果news.db不存在，新建文件
+//            if (!file.exists()){
+//                file.createNewFile();
+//            }else{
+//                return;
+//            }
+//
+//            //建立从raw读取数据的输入流
+//            InputStream input=getResources().openRawResource(R.raw.news);
+//            //建立写到数据库中的输出流
+//            FileOutputStream output=new FileOutputStream(file);
+//
+//            byte[] buffer=new byte[1024];//缓冲区
+//            int count=0;
+//            while((count=input.read(buffer))!=-1){
+//                output.write(buffer,0,count);
+//            }
+//            input.close();
+//            output.close();
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 }

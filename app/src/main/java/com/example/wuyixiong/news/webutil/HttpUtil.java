@@ -1,4 +1,4 @@
-package com.example.wuyixiong.news.util;
+package com.example.wuyixiong.news.webutil;
 
 /**
  * Created by WUYIXIONG on 2016-10-24.

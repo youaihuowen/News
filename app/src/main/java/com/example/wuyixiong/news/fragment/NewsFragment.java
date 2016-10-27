@@ -1,13 +1,10 @@
 package com.example.wuyixiong.news.fragment;
 
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +16,6 @@ import android.widget.Toast;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.wuyixiong.news.R;
@@ -30,7 +26,8 @@ import com.example.wuyixiong.news.adapter.NewsAdapter;
 import com.example.wuyixiong.news.db.NewsDBManager;
 import com.example.wuyixiong.news.entity.NewsEntity;
 import com.example.wuyixiong.news.entity.NewsType;
-import com.example.wuyixiong.news.util.HttpUtil;
+import com.example.wuyixiong.news.webutil.Analysis;
+import com.example.wuyixiong.news.webutil.HttpUtil;
 import com.example.wuyixiong.news.view.HorizontalListView;
 import com.example.wuyixiong.news.xlistview.XListView;
 
@@ -45,7 +42,7 @@ import java.util.Date;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class NewsFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class NewsFragment extends Fragment {
 
 
     private HorizontalListView hlv;//页面上边类别
@@ -58,6 +55,8 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
 
     private MainActivity main;
 
+    private Analysis analysis = new Analysis();
+
     public NewsFragment() {
         // Required empty public constructor
     }
@@ -65,13 +64,16 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
     public static final int REFRESH = 1;
     public static final int MORE = 2;
 
-//    NewsDBManager dbManager = new NewsDBManager();
+    private NewsDBManager dbManager ;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_news, container, false);
+
+        dbManager = new NewsDBManager(getContext());
+
         hlv = (HorizontalListView) view.findViewById(R.id.hlv_main);
         xlv = (XListView) view.findViewById(R.id.xlv_frag_news);
         main = (MainActivity) getActivity();
@@ -89,26 +91,6 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
         return view;
     }
 
-
-    /**
-     * 横向listview的点击监听
-     * @param parent
-     * @param view
-     * @param position
-     * @param id
-     */
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        switch (view.getId()){
-            case R.id.hlv_main:
-
-                break;
-            case R.id.xlv_frag_news:
-
-                break;
-        }
-
-    }
 
     //设置监听
     private void setListener() {
@@ -148,13 +130,8 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
      * 使用volley获取新闻类型数据
      */
     private void initType() {
-        final SQLiteDatabase db = SQLiteDatabase.openOrCreateDatabase(
-                "data/data/com.example.wuyixiong.news/database/news.db",
-                null);
-        String sql = "select * from type";
-        final String sql_insert = "INSERT INTO type (subgroup,subid) VALUES (?,?)";
-        Cursor cursor = db.rawQuery(sql, null);
-        if (cursor.getCount() <= 0) {
+        list = dbManager.selectType();
+        if (list == null || list.size() <= 0) {
             if (MainActivity.isNetworkAvailable(getContext())) {
                 String url = HttpUtil.URL + "news_sort?ver=1&imei=111111111111111";
                 RequestQueue queue = Volley.newRequestQueue(getActivity());
@@ -163,16 +140,9 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
                             @Override
                             public void onResponse(String s) {
                                 //解析数据后得到一个集合
-                                list = analysisType(s);
-                                new Thread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        db.execSQL(sql_insert,
-                                                new Object[]{list.get(0).getSubgroup(), list.get(0).getSubid()});
-                                        db.execSQL(sql_insert,
-                                                new Object[]{list.get(1).getSubgroup(), list.get(1).getSubid()});
-                                    }
-                                }).start();
+                                list = analysis.analysisType(s);
+                                dbManager.insertType(list.get(0));
+                                dbManager.insertType(list.get(1));
                                 adapter = new HLVAdapter(list, getContext());
                                 hlv.setAdapter(adapter);
                             }
@@ -189,53 +159,11 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
             }
 
         } else {
-            cursor.moveToFirst();
-            int index_type = cursor.getColumnIndexOrThrow("subgroup");
-            int index_id = cursor.getColumnIndexOrThrow("subid");
-            do {
-                NewsType type = new NewsType();
-                type.setSubgroup(cursor.getString(index_type));
-                type.setSubid(cursor.getInt(index_id));
-                list.add(type);
-            } while (cursor.moveToNext());
             adapter = new HLVAdapter(list, getContext());
             hlv.setAdapter(adapter);
         }
-
     }
 
-    /**
-     * 解析新闻类型数据(第一次 返回两个)
-     */
-    private ArrayList<NewsType> analysisType(String s) {
-        ArrayList<NewsType> list = new ArrayList<>();
-        try {
-            JSONObject object = new JSONObject(s);
-            if ("OK".equals(object.getString("message"))) {
-
-                JSONArray array = object.getJSONArray("data");
-                JSONObject object1 = array.getJSONObject(0);
-                JSONArray array1 = object1.getJSONArray("subgrp");
-
-                for (int j = 0; j < array1.length(); j++) {
-                    JSONObject object2 = array1.getJSONObject(j);
-                    String subgroup = object2.getString("subgroup");
-                    int subid = object2.getInt("subid");
-                    NewsType type = new NewsType();
-                    type.setSubgroup(subgroup);
-                    type.setSubid(subid);
-                    list.add(type);
-                }
-            } else {
-                Log.i("tag", object.getString("message") + "");
-            }
-            Log.i("tag", list.size() + "");
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
 
 
     /**
@@ -258,7 +186,7 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String s) {
-                            data = analysisNews(s);
+                            data = analysis.analysisNews(s);
                             newsAdapter.setData(data);
                             Log.i("tag", "AAAAAAAAAAA");
                             xlv.setAdapter(newsAdapter);
@@ -266,13 +194,13 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
                             //取消加载的dialog
                             main.cancelDialog();
 
-//                            //将新闻数据缓存到数据库
-//                            new Thread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    dbManager.insertNews(data,subid);
-//                                }
-//                            }).start();
+                            //将新闻数据缓存到数据库
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dbManager.insertNews(data,subid);
+                                }
+                            }).start();
                         }
                     },
                     new Response.ErrorListener() {
@@ -283,19 +211,13 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
                     });
             queue.add(request);
         } else {
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    data = dbManager.selectNews(subid);
-//                    newsAdapter = new NewsAdapter(data, getContext());
-//                    xlv.setAdapter(newsAdapter);
-//                    xlv.setPullRefreshEnable(true);
-//                    xlv.setPullLoadEnable(true);
-//                    xlv.setRefreshTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date()));
-//                    //取消加载的dialog
-//                    main.cancelDialog();
-//                }
-//            }).start();
+
+                    data = dbManager.selectNews(subid);
+                    newsAdapter.setData(data);
+                    xlv.setAdapter(newsAdapter);
+                    //取消加载的dialog
+                    main.cancelDialog();
+
             Toast.makeText(getContext(), "没有网络", Toast.LENGTH_SHORT).show();
         }
     }
@@ -319,7 +241,7 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String s) {
-                            newsAdapter.addNewList(analysisNews(s));
+                            newsAdapter.addNewList(analysis.analysisNews(s));
                             newsAdapter.updateAdapter();
                         }
                     },
@@ -333,40 +255,6 @@ public class NewsFragment extends Fragment implements AdapterView.OnItemClickLis
         } else {
             Toast.makeText(getContext(), "没有网络", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    /**
-     * 解析新闻
-     *
-     * @param s
-     * @return
-     */
-    private ArrayList<NewsEntity> analysisNews(String s) {
-        ArrayList<NewsEntity> list = new ArrayList<>();
-        try {
-            JSONObject object = new JSONObject(s);
-            String message = object.getString("message");
-            int status = object.getInt("status");
-            if ("OK".equals(message) && status == 0) {
-                JSONArray array = object.getJSONArray("data");
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject object1 = array.getJSONObject(i);
-                    String stamp = object1.getString("stamp");
-                    String icon = object1.getString("icon");
-                    String title = object1.getString("title");
-                    int nid = object1.getInt("nid");
-                    String link = object1.getString("link");
-                    int type = object1.getInt("type");
-                    NewsEntity news = new NewsEntity(type, nid, stamp, icon, title, null, link);
-                    list.add(news);
-                }
-
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return list;
     }
 
 

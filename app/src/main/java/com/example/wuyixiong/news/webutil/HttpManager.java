@@ -1,11 +1,10 @@
-package com.example.wuyixiong.news.util;
+package com.example.wuyixiong.news.webutil;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Volley;
 
@@ -23,7 +22,12 @@ public class HttpManager {
     }
 
 
-
+    /**
+     * 从网络获取新闻的图片
+     * @param url 网址
+     * @param listener 成功的监听
+     * @param errorListener 失败的监听
+     */
     public void initIcon(String url, Response.Listener<Bitmap> listener, Response.ErrorListener errorListener){
         ImageRequest request = new ImageRequest(url,listener,0,0, Bitmap.Config.RGB_565,errorListener);
         queue.add(request);
