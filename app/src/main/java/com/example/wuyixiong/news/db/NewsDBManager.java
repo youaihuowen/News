@@ -118,6 +118,7 @@ public class NewsDBManager {
 
     /**
      * 从数据库中查询类型
+     *
      * @return
      */
     public ArrayList<NewsType> selectType() {
@@ -143,10 +144,90 @@ public class NewsDBManager {
 
     /**
      * 添加单条新闻类型
+     *
      * @param type
      */
     public void insertType(NewsType type) {
         String sql_insert = "INSERT INTO newsType (subgroup,subid) VALUES (?,?)";
         db.execSQL(sql_insert, new Object[]{type.getSubgroup(), type.getSubid()});
+    }
+
+    /**
+     * 查询数据库中收藏表中的数据的nid
+     *
+     * @return
+     */
+    public ArrayList<Integer> selectIsCollection() {
+        ArrayList<Integer> list = new ArrayList<>();
+        String sql = "select nid from favorite";
+        Cursor c = db.rawQuery(sql, null);
+        if (c == null && c.getCount() <= 0) {
+            return null;
+        } else {
+            int index = c.getColumnIndexOrThrow("nid");
+            while (c.moveToNext()) {
+                list.add(c.getInt(index));
+            }
+            c.close();
+            return list;
+        }
+    }
+
+    /**
+     * 将新闻添加到收藏的数据库
+     *
+     * @param message
+     */
+    public void insertCollection(NewsEntity message) {
+        if (message != null) {
+            nid = message.getNid();
+            stamp = message.getStamp();
+            icon = message.getIcon();
+            title = message.getTitle();
+            link = message.getLink();
+            String sql = "insert into favorite (nid,stamp,icon,title,link,subid)values(?,?,?,?,?,?)";
+            db.execSQL(sql, new Object[]{nid, stamp, icon, title, link});
+        }
+    }
+
+    /**
+     * 查询收藏数据库中的新闻
+     * @return
+     */
+    public ArrayList<NewsEntity> selectCollection() {
+        ArrayList<NewsEntity> list = new ArrayList<>();
+        String sql = "select * from favorite";
+        Cursor c = db.rawQuery(sql, null);
+        if (c == null || c.getCount() <= 0) {
+            return null;
+        } else {
+            int index_nid = c.getColumnIndexOrThrow("nid");
+            int index_stamp = c.getColumnIndexOrThrow("stamp");
+            int index_icon = c.getColumnIndexOrThrow("icon");
+            int index_title = c.getColumnIndexOrThrow("title");
+            int index_link = c.getColumnIndexOrThrow("link");
+            while (c.moveToNext()) {
+                NewsEntity message = new NewsEntity();
+                message.setNid(c.getInt(index_nid));
+                message.setStamp(c.getString(index_stamp));
+                message.setIcon(c.getString(index_icon));
+                message.setTitle(c.getString(index_title));
+                message.setLink(c.getString(index_link));
+                list.add(message);
+            }
+            c.close();
+            return list;
+        }
+    }
+
+    /**
+     * 取消收藏
+     *
+     * @param message
+     */
+    public void deleteCollection(NewsEntity message) {
+        nid = message.getNid();
+        String sql = "delete from favorite where nid = ?";
+        db.execSQL(sql, new Object[]{nid});
     }
 }

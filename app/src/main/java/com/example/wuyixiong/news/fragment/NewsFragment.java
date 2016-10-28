@@ -119,8 +119,7 @@ public class NewsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                String link = data.get(position-1).getLink();
-                intent.putExtra("link",link);
+                intent.putExtra("message",data.get(position-1));
                 startActivity(intent);
             }
         });
@@ -190,10 +189,8 @@ public class NewsFragment extends Fragment {
                             newsAdapter.setData(data);
                             Log.i("tag", "AAAAAAAAAAA");
                             xlv.setAdapter(newsAdapter);
-
                             //取消加载的dialog
                             main.cancelDialog();
-
                             //将新闻数据缓存到数据库
                             new Thread(new Runnable() {
                                 @Override
@@ -256,6 +253,7 @@ public class NewsFragment extends Fragment {
             Toast.makeText(getContext(), "没有网络", Toast.LENGTH_SHORT).show();
         }
     }
+
 
 
 }

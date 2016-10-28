@@ -90,7 +90,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginTop="31dp"
-        android:background="@drawable/shap_button"
+        android:background="@drawable/shape_button"
         android:text="登  录"
         android:textColor="#ffffff"
         android:textSize="25dp"

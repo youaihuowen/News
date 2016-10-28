@@ -1,11 +1,13 @@
 package com.example.wuyixiong.news.entity;
 
+import java.io.Serializable;
+
 /**
  * 新闻的实体类
  * Created by WUYIXIONG on 2016-10-24.
  */
 
-public class NewsEntity {
+public class NewsEntity implements Serializable {
 
     private int type;//类型
     private int nid;//新闻id
