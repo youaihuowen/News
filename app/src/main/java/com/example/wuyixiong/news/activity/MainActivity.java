@@ -29,6 +29,7 @@ import com.example.wuyixiong.news.fragment.PhotoFragment;
 import com.example.wuyixiong.news.sliding.SlidingMenu;
 import com.example.wuyixiong.news.view.HorizontalListView;
 import com.example.wuyixiong.news.R;
+import com.example.wuyixiong.news.webutil.HttpManager;
 
 import java.util.ArrayList;
 
@@ -65,11 +66,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private String userName = null;
     private String token = null;
 
+    private HttpManager httpManager;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        httpManager = new HttpManager(this);
         initSlidingMenu();
         initView();//初始化控件
         checkLogin();
@@ -146,7 +150,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         switch (v.getId()) {
             case R.id.tv_login:
             case R.id.iv_login:
-                if (!isNetworkAvailable(this)){
+                if (!httpManager.isNetworkAvailable(this)){
                     Toast.makeText(this,"没有网络",Toast.LENGTH_SHORT).show();
                 }else {
                     startActivity(new Intent(this, LoginActivity.class));
@@ -274,22 +278,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             iv_login.setImageResource(R.drawable.login);
             ll_other.setVisibility(View.GONE);
             ll_menu.setVisibility(View.VISIBLE);
-        }
-    }
-
-    /**
-     * 判断是否有网
-     * @param context 上下文
-     * @return 有网返回true 没网返回false
-     */
-    public static boolean isNetworkAvailable(Context context){
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-        if (info == null || !info.isAvailable()){
-            return false;
-        }else{
-            return true;
         }
     }
 }

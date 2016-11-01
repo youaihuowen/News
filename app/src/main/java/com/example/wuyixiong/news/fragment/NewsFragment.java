@@ -27,6 +27,7 @@ import com.example.wuyixiong.news.db.NewsDBManager;
 import com.example.wuyixiong.news.entity.NewsEntity;
 import com.example.wuyixiong.news.entity.NewsType;
 import com.example.wuyixiong.news.webutil.Analysis;
+import com.example.wuyixiong.news.webutil.HttpManager;
 import com.example.wuyixiong.news.webutil.HttpUtil;
 import com.example.wuyixiong.news.view.HorizontalListView;
 import com.example.wuyixiong.news.xlistview.XListView;
@@ -56,6 +57,8 @@ public class NewsFragment extends Fragment {
     private MainActivity main;
 
     private Analysis analysis = new Analysis();
+    private HttpManager httpManager;
+
 
     public NewsFragment() {
         // Required empty public constructor
@@ -73,6 +76,7 @@ public class NewsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_news, container, false);
 
         dbManager = new NewsDBManager(getContext());
+        httpManager = new HttpManager(getContext());
 
         hlv = (HorizontalListView) view.findViewById(R.id.hlv_main);
         xlv = (XListView) view.findViewById(R.id.xlv_frag_news);
@@ -131,7 +135,7 @@ public class NewsFragment extends Fragment {
     private void initType() {
         list = dbManager.selectType();
         if (list == null || list.size() <= 0) {
-            if (MainActivity.isNetworkAvailable(getContext())) {
+            if (httpManager.isNetworkAvailable(getContext())) {
                 String url = HttpUtil.URL + "news_sort?ver=1&imei=111111111111111";
                 RequestQueue queue = Volley.newRequestQueue(getActivity());
                 StringRequest request = new StringRequest(url,
@@ -173,7 +177,7 @@ public class NewsFragment extends Fragment {
     private void initNews(final int subid) {
         //显示加载的dialog
         main.showLoadingDialog(null, true);
-        if (MainActivity.isNetworkAvailable(getContext())) {
+        if (httpManager.isNetworkAvailable(getContext())) {
             //获取当前时间
             SimpleDateFormat sp = new SimpleDateFormat("yyyyMMdd");
             String time = sp.format(new Date());
@@ -226,7 +230,7 @@ public class NewsFragment extends Fragment {
      * @param nid   xlistview显示的最后一条数据的id
      */
     private void loadMoreNews(int subid, int nid) {
-        if (MainActivity.isNetworkAvailable(getContext())) {
+        if (httpManager.isNetworkAvailable(getContext())) {
             //获取当前时间
             SimpleDateFormat sp = new SimpleDateFormat("yyyyMMdd");
             String time = sp.format(new Date());

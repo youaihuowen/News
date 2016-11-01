@@ -2,6 +2,7 @@ package com.example.wuyixiong.news.webutil;
 
 import android.util.Log;
 
+import com.example.wuyixiong.news.entity.CommentEntity;
 import com.example.wuyixiong.news.entity.NewsEntity;
 import com.example.wuyixiong.news.entity.NewsType;
 
@@ -84,4 +85,77 @@ public class Analysis {
 
         return list;
     }
+
+    /**
+     * 解析评论的数量
+     *
+     * @param s
+     * @return
+     */
+    public int analysisCount(String s) {
+        int count = 0;
+        try {
+            JSONObject object = new JSONObject(s);
+            int data = object.getInt("data");
+            count = data;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
+    /**
+     * 解析评论
+     *
+     * @param s
+     * @return
+     */
+    public ArrayList<CommentEntity> analysisComment(String s) {
+        ArrayList<CommentEntity> list = new ArrayList<>();
+        try {
+            JSONObject object = new JSONObject(s);
+            String message = object.getString("message");
+            int status = object.getInt("status");
+            if ("OK".equals(message) && status == 0) {
+                JSONArray array = object.getJSONArray("data");
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject object1 = (JSONObject) array.get(i);
+                    CommentEntity comment = new CommentEntity();
+                    comment.setUid(object1.getString("uid"));
+                    comment.setContent(object1.getString("content"));
+                    comment.setStamp(object1.getString("stamp"));
+                    comment.setCid(object1.getInt("cid"));
+                    comment.setPortrait(object1.getString("portrait"));
+                    list.add(comment);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
+     * 发表评论解析数据判断死否成功
+     * @param s
+     * @return
+     */
+    public Boolean analysisSend(String s) {
+        String message = null;
+        int status = -1;
+        try {
+            JSONObject object = new JSONObject(s);
+            message = object.getString("message");
+            status = object.getInt("status");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if ("OK".equals(message) && status == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
+
